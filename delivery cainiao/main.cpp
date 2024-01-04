@@ -48,7 +48,7 @@ int main()
 		if(mode == '2')
 		{
 			WareHouse wh(300);
-			wh.Sort();
+			//wh.Sort();
 			int cnt = 1;
 			while (wh.CurSize() > 0 && cainiao.CurTime() <= 18)
 			{
@@ -133,9 +133,11 @@ int main()
 			}
 			DeliveryPoints dp;
 			dp.show();
+			std::cout << std::endl << std::setfill('-') << std::setw(83) << "" << std::setfill(' ') << std::endl;
 			cainiao.NearestReceiver(dp);
 			std::cout << "收货路径： " << std::endl;
 			cainiao.track();
+			std::cout << "收货总耗费： " << cainiao.TotalCost() << "kg*m" << std::endl;
 		}
 		if (mode == 'q' || mode == 'Q')//退出
 		{

@@ -18,6 +18,7 @@ private:
 	double time;
 	//用于送货目的地
 	std::vector<int> visited;
+	//存储路径
 	std::vector<int> route;
 public:
 	Vehicle();
@@ -41,6 +42,8 @@ public:
 	int NearestDest(int,bool);
 	void NearestDeliver(WareHouse&);
 	void NearestReceiver(DeliveryPoints&);
+	//在驿站卸货
+	void drop();                           
 	//输出完整路径
 	void track();
 	void Reset();

@@ -39,7 +39,6 @@ Parcel::Parcel(int sequence) : priority(sequence)
 	//地址
 	std::uniform_int_distribution<> DestinationDistribution(1, 13);
 	destination = DestinationDistribution(gen);
-	//bool operator<(const Parcel& rhs);
 }
  
 Parcel::Parcel(int w, int ddl,int dest)
@@ -142,6 +141,15 @@ void WareHouse::print()
 	}
 }
 
+void WareHouse::PrintSend()
+{
+	for (int i = 0; i < PacelQueue.size(); i++)
+	{
+		std::cout << std::setw(8) << "编号：" << PacelQueue[i].number << '\t'
+			<< std::setw(8) << "重量：" << std::setw(2) << PacelQueue[i].weight << std::endl;
+	}
+}
+
 void WareHouse::Manual(int no)
 {
 	//定位催货元素
@@ -167,13 +175,17 @@ DeliveryPoints::DeliveryPoints()
 	{
 		std::random_device rd;
 		std::mt19937 gen(rd());
-		std::uniform_int_distribution<int> distribution(0, 1);
+		//设置寄货点
+		std::uniform_int_distribution<int> distribution(0, 5);
 		int num ;
 		if (i == 0)
 			num = 0;
 		else
 			num = distribution(gen);
-		sign.push_back(1-num);
+		if (num > 0)
+			sign.push_back(0);
+		else
+			sign.push_back(1);
 		WareHouse temp(num);
 		WareHouseQueue.push_back(temp);
 	}
@@ -200,8 +212,8 @@ void DeliveryPoints::show()
 		if (sign[i] == 1)
 			std::cout << building[i] << "不需要寄包裹" << std::endl;
 		else {
-			std::cout << building[i] << "包裹编号：" << std::endl;
-			WareHouseQueue[i].print();
+			std::cout << building[i] << "包裹编号：" ;
+			WareHouseQueue[i].PrintSend();
 		}
 	}
 }

@@ -51,7 +51,6 @@ void Vehicle::ShowInfo(int cnt)
 	std::cout << "第" << cnt << "趟小车货物基本信息:" << std::endl;
 	for (int i = 0; i < carriage.size(); i++)
 	{
-
 		std::cout << std::setw(8) << "编号："  << carriage[i].number<<'\t'
 			<< std::setw(8) << "重量：" << std::setw(2) << carriage[i].weight
 			<< std::setw(16) << "目的地：" << std::setw(7) <<building[carriage[i].destination]<<'\t'
@@ -186,6 +185,21 @@ void Vehicle::NearestDeliver(WareHouse& wh)
 	cur = NearestDest(start, true);
 }
 
+void Vehicle::drop()
+{
+	if (carriage.size() > 0)
+	{
+		std::cout << "到站包裹信息:" << std::endl;
+		for (auto it = carriage.begin();it != carriage.end();)
+		{
+			CurWeight -= it->weight;
+			std::cout << std::setw(8) << "编号：" << it->number << '\t'
+				<< std::setw(8) << "重量：" << std::setw(2) << it->weight<<std::endl;
+			it = carriage.erase(it);
+		}
+	}
+}
+
 void Vehicle::NearestReceiver(DeliveryPoints& dp)
 {
 	int total = dp.WareHouseQueue.size();
@@ -196,15 +210,40 @@ void Vehicle::NearestReceiver(DeliveryPoints& dp)
 	int start = 0;
 	int cur;
 	route.push_back(0);
-	for (int i = 0;i < total;i++)
+	int i = 0;
+	while(i < total)
 	{
-		cur = NearestDest(start, false);
+		//装载量未满则继续装载
+		if(CurWeight < 240)
+			cur = NearestDest(start, false);
+		else
+			cur = NearestDest(start, true);
+		
+		//接收货物
 		LoadParcel(dp.WareHouseQueue[i]);
-		//dp.WareHouseQueue[i].PacelQueue.clear();
-		dp.sign[i] = 1;
+		if (dp.WareHouseQueue[i].PacelQueue.size() > 0)
+		{
+			//仍未送完
+			visited[i] = 0;
+		}
+		//该点完成
+		else {
+			dp.sign[i] = 1;
+			i++;
+		}
+		
+		if (cur == 0)
+		{
+			//顺路回原点则卸货
+			drop();
+			CurWeight = 0;
+		}
 		start = cur;
+		//std::cout << CurWeight << std::endl;
 	}
+	//最终返回
 	cur = NearestDest(start, true);
+	drop();
 }
 
 int Vehicle::MinKey(const std::vector<int>& key)

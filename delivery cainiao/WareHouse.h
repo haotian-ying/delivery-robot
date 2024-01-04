@@ -14,6 +14,7 @@ struct Parcel
 	int destination;
 	int priority;
 
+	//TODO 优先级函数
 	//其余元素自动生成
 	Parcel(int);
 	//生成测试样例
@@ -27,7 +28,6 @@ private:
 	//仓库包裹数上限
 	int OverTime = 0;
 	int MaxNum = 300;
-	int pos = 0;
 public:
 	friend class Vehicle;
 	WareHouse();
@@ -45,6 +45,7 @@ public:
 	int TimeCount(double,double);
 	void UpdateOverTime();
 	void print();
+	void PrintSend();
 	//催货
 	void Manual(int);
 };

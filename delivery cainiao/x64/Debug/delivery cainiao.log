@@ -1,1 +1,3 @@
-﻿  delivery cainiao.vcxproj -> D:\data structure\delivery robot\delivery cainiao\x64\Debug\delivery cainiao.exe
+﻿  Vehicle.cpp
+D:\data structure\delivery robot\delivery cainiao\Vehicle.cpp(205,38): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+  delivery cainiao.vcxproj -> D:\data structure\delivery robot\delivery cainiao\x64\Debug\delivery cainiao.exe
