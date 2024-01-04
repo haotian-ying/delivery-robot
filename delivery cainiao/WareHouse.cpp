@@ -1,6 +1,8 @@
 ﻿#include "WareHouse.h"
 #include<set>
+#include <iomanip>
 #include<random>
+#include <algorithm> 
 #include<iostream>
 
 int generateUniqueRandomNumber() {
@@ -32,12 +34,21 @@ Parcel::Parcel(int sequence) : priority(sequence)
 	std::uniform_real_distribution<> weightDistribution(1, 20);
 	weight = weightDistribution(gen);
 	//包裹送达时限
-	std::uniform_int_distribution<> deliveryTimeDistribution(8, 18);
+	std::uniform_int_distribution<> deliveryTimeDistribution(9, 18);
 	TimeLimit = deliveryTimeDistribution(gen);
 	//地址
 	std::uniform_int_distribution<> DestinationDistribution(1, 13);
 	destination = DestinationDistribution(gen);
 	//bool operator<(const Parcel& rhs);
+}
+ 
+Parcel::Parcel(int w, int ddl,int dest)
+{
+	number = generateUniqueRandomNumber();
+	weight = w;
+	TimeLimit = ddl;
+	destination = dest;
+	priority = 1;
 }
 
 WareHouse::WareHouse() 
@@ -57,11 +68,12 @@ WareHouse::WareHouse(int num)
 		Parcel temp(i);
 		PacelQueue.push_back(temp);
 	}
+}
 
-	/*for (int i = 0;i < num;i++)
-	{
-		std::cout << PacelQueue[i].destination << std::endl;
-	}*/
+
+WareHouse::WareHouse(const Parcel& p)
+{
+	PacelQueue.push_back(p);
 }
 
 WareHouse::~WareHouse()
@@ -70,20 +82,64 @@ WareHouse::~WareHouse()
 		PacelQueue.clear();
 }
 
+bool CmpTimeLimit(const Parcel& a, const Parcel& b)
+{
+	return a.TimeLimit < b.TimeLimit;
+}
+
+void WareHouse::Sort()
+{
+	std::sort(PacelQueue.begin(), PacelQueue.end(), CmpTimeLimit);
+}
+
+void WareHouse::pop()
+{
+	PacelQueue.erase(PacelQueue.begin());
+}
+
+void WareHouse::push(const Parcel& temp)
+{
+	PacelQueue.push_back(temp);
+}
+
+Parcel& WareHouse::front()
+{
+	return PacelQueue[0];
+}
+
 int WareHouse::CurSize()
 {
 	return PacelQueue.size();
 }
 
-int WareHouse::OverTime(double cur)
+void WareHouse::UpdateOverTime()
 {
-	int cnt = 0;
-	for (const auto& temp : PacelQueue)
+	OverTime++;
+}
+
+int WareHouse::TimeCount(double prev,double cur)
+{
+	for (int i = 0;i < PacelQueue.size();i++)
 	{
-		if (temp.TimeLimit < cur)
-			cnt++;
+		if (PacelQueue[i].TimeLimit < cur && PacelQueue[i].TimeLimit > prev)
+		{
+			OverTime++;
+		}
 	}
-	return cnt;
+	return OverTime;
+}
+
+void WareHouse::print()
+{
+	for (int i = 0; i < PacelQueue.size(); i++)
+	{
+
+		std::cout << std::setw(8) << "编号：" << PacelQueue[i].number << '\t'
+			<< std::setw(8) << "重量：" << std::setw(2) << PacelQueue[i].weight
+			<< std::setw(16) << "目的地：" << std::setw(7) << building[PacelQueue[i].destination] << '\t'
+			<< std::setw(8) << "时限：" << std::setw(2) << PacelQueue[i].TimeLimit << '\t'
+			<< std::setw(8) << "优先级：" << std::setw(3) << PacelQueue[i].priority << std::endl;
+	}
 }
 
 void WareHouse::Manual(int no)
@@ -99,9 +155,53 @@ void WareHouse::Manual(int no)
 			PacelQueue.erase(PacelQueue.begin() + id);
 			//首位插入，完成催货
 			PacelQueue.insert(PacelQueue.begin(), temp);
-			//PacelQueue[0].priority = 
 		}
 		else
 			id++;
+	}
+}
+
+DeliveryPoints::DeliveryPoints()
+{
+	for (int i = 0;i < n;i++)
+	{
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_int_distribution<int> distribution(0, 1);
+		int num ;
+		if (i == 0)
+			num = 0;
+		else
+			num = distribution(gen);
+		sign.push_back(1-num);
+		WareHouse temp(num);
+		WareHouseQueue.push_back(temp);
+	}
+}
+
+int DeliveryPoints::size()
+{
+	int cnt = 0;
+	for (int i = 0;i < n;i++)
+	{
+		if (sign[i] == 0)
+		{
+			cnt++;
+		}
+	}
+	return cnt;
+}
+
+void DeliveryPoints::show()
+{
+	std::cout << "各个送达点有发货包裹信息如下:" << std::endl;
+	for (int i = 1;i < n;i++)
+	{
+		if (sign[i] == 1)
+			std::cout << building[i] << "不需要寄包裹" << std::endl;
+		else {
+			std::cout << building[i] << "包裹编号：" << std::endl;
+			WareHouseQueue[i].print();
+		}
 	}
 }

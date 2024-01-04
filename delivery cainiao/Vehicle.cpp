@@ -1,23 +1,7 @@
 ﻿#include "Vehicle.h"
 #include<vector>
+#include<stack>
 #include<iomanip>
-
-int arcs[n][n] = {
-			{0,96,281,318,323,MaxDis,MaxDis,MaxDis,532,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis},
-			{96,0,312,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis},
-			{281,312,0,145,442,541,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis},
-			{318,MaxDis,145,0,226,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis},
-			{323,MaxDis,442,226,0,437,MaxDis,MaxDis,98,112,MaxDis,MaxDis,MaxDis,MaxDis},
-			{MaxDis,MaxDis,MaxDis,MaxDis,437,0,47,MaxDis,MaxDis,346,MaxDis,MaxDis,162,MaxDis},
-			{MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,47,0,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,198,MaxDis},
-			{MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,0,152,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis},
-			{532,MaxDis,MaxDis,MaxDis,98,MaxDis,MaxDis,152,0,143,251,MaxDis,MaxDis,MaxDis},
-			{MaxDis,MaxDis,MaxDis,MaxDis,112,346,MaxDis,MaxDis,143,0,MaxDis,96,412,MaxDis},
-			{MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,251,MaxDis,0,85,MaxDis,MaxDis},
-			{MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,96,85,0,348,261},
-			{MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,162,198,MaxDis,MaxDis,412,MaxDis,348,0,187},
-			{MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,MaxDis,261,187,0}
-};
 
 Vehicle::Vehicle()
 {
@@ -63,12 +47,6 @@ int Vehicle::TotalCost()
 
 void Vehicle::ShowInfo(int cnt)
 {
-	/*for (int i = 0;i < carriage.size();i++)
-	{
-		std::cout << "编号：" << carriage[i].number<<'\t' << "重量：" << carriage[i].weight << '\t'
-				  << "目的地：" << building[carriage[i].destination] << '\t'
-				  << "时限：" << carriage[i].TimeLimit << '\t' << "优先级：" << carriage[i].priority <<std::endl;
-	}*/
 	std::cout << "当前时间：" << time << "时" << std::endl;
 	std::cout << "第" << cnt << "趟小车货物基本信息:" << std::endl;
 	for (int i = 0; i < carriage.size(); i++)
@@ -86,21 +64,147 @@ void Vehicle::ShowInfo(int cnt)
 void Vehicle::LoadParcel(WareHouse& wh)
 {
 	//载货至装满
-	while (CurWeight <= Capacity)
+	while (CurWeight <= Capacity && !wh.PacelQueue.empty())
 	{
-		if (!wh.PacelQueue.empty())
-		{
 			//装卸货
 			Parcel temp = wh.PacelQueue.front();
 			auto it = wh.PacelQueue.erase(wh.PacelQueue.begin());
 			carriage.push_back(temp);
 			CurWeight += temp.weight;
-			//std::cout << temp.weight<<std::endl;
 			//标记目的地
 			visited[temp.destination] = 0;
+	}
+}
+
+int Vehicle::NearestDest(int start,bool back)
+{
+	visited[start] = 1; 
+	std::vector<int> s(n, 0);
+	std::vector<int> path(n, 0);
+	std::vector<int> d(n, 0);
+
+	for (int i = 0;i < n;i++)
+	{
+		s[i] = 0;
+		d[i] = arcs[start][i];
+		if (d[i] < MaxDis)
+			path[i] = start;
+		else
+			path[i] = -1;
+	}
+	s[start] = 1;
+	d[start] = 0;
+
+	for (int i = 1;i < n;i++)
+	{
+		int v = 0;
+		int min = MaxDis;
+		for (int j = 0;j < n;++j) 
+		{
+			if (s[j] == 0 && d[j] < min)
+			{
+				v = j;
+				min = d[j];
+			}
+		}
+		s[v] = true;
+		
+		//更新其余最短路径
+		for (int j = 0;j < n;j++)
+		{
+			if (!s[j] && (d[v] + arcs[v][j] < d[j]))
+			{
+				d[j] = d[v] + arcs[v][j];
+				path[j] = v;
+			}
 		}
 	}
-	//std::cout << NumOfDest() << std::endl;
+
+	//找出下一个目的地
+	int min = std::numeric_limits<int>::max();;
+	int next = 0;
+
+	if (!back)
+	{
+		for (int i = 0;i < n;i++)
+		{
+			if (!visited[i] && (d[i] < min))
+			{
+				min = d[i];
+				next = i;
+			}
+		}
+	}
+
+	int temp = next;
+	std::stack<int> helper;
+	while (temp != start)
+	{
+		helper.push(temp);
+		//找前驱结点
+		cost += arcs[temp][path[temp]] * CurWeight;
+		time += static_cast<double>(arcs[temp][path[temp]]) / speed / 60.0;
+		temp = path[temp];
+	}
+
+	while (!helper.empty())
+	{
+		int temp = helper.top();
+		route.push_back(temp);
+		helper.pop();
+	}
+	return next;
+}
+
+void Vehicle::NearestDeliver(WareHouse& wh)
+{
+	int total = NumOfDest();
+	int start = 0;
+	int cur;
+	route.push_back(0);
+	for (int i = 0;i < total;i++)
+	{
+		cur = NearestDest(start,false);
+		//卸货
+		for (auto it = carriage.begin();it != carriage.end();)
+		{
+			if (it->destination == cur)
+			{
+				CurWeight -= it->weight;
+				//送达过程中超时
+				if (time > it->TimeLimit)
+				{
+					wh.UpdateOverTime();
+				}
+				it = carriage.erase(it);
+			}
+			else
+				it++;
+		}
+		start = cur;
+	}
+	cur = NearestDest(start, true);
+}
+
+void Vehicle::NearestReceiver(DeliveryPoints& dp)
+{
+	int total = dp.WareHouseQueue.size();
+	for (int i = 0;i < n;i++)
+	{
+		visited[i] = dp.sign[i];
+	}
+	int start = 0;
+	int cur;
+	route.push_back(0);
+	for (int i = 0;i < total;i++)
+	{
+		cur = NearestDest(start, false);
+		LoadParcel(dp.WareHouseQueue[i]);
+		//dp.WareHouseQueue[i].PacelQueue.clear();
+		dp.sign[i] = 1;
+		start = cur;
+	}
+	cur = NearestDest(start, true);
 }
 
 int Vehicle::MinKey(const std::vector<int>& key)
@@ -117,9 +221,10 @@ int Vehicle::MinKey(const std::vector<int>& key)
 	return MinIndex;
 }
 
-void Vehicle::deliver(WareHouse& wh)
+
+void Vehicle::deliver()
 {
-	//前驱
+	//
 	std::vector<int> parent(n, -1);
 	//距离
 	std::vector<int> key(n, std::numeric_limits<int>::max());
@@ -147,7 +252,7 @@ void Vehicle::deliver(WareHouse& wh)
 			//cost++;
 			//std::cout << cost << std::endl;
 			//更新耗时
-			time += arcs[parent[k]][k] / speed / 60;
+			time += arcs[parent[k]][k] / speed / 60.0;
 			//更新送达后重量
 			for (auto it = carriage.begin();it != carriage.end();)
 			{
@@ -155,7 +260,7 @@ void Vehicle::deliver(WareHouse& wh)
 				{
 					/*if (time > it->TimeLimit)
 					{
-						wh.OverTime++;
+						wh.UpdateOverTime();
 					}*/
 					CurWeight -= it->weight;
 					it = carriage.erase(it);
@@ -179,10 +284,21 @@ void Vehicle::deliver(WareHouse& wh)
 
 void Vehicle::Reset()
 {
-	//std::cout << carriage.size() << std::endl;
 	cost = 0;
 	for (int i = 0;i < n;i++)
 	{
 		visited[i] = 1;
+	}
+	route.clear();
+}
+
+void Vehicle::track()
+{
+	for (int i = 0;i < route.size();i++)
+	{
+		if (i != route.size() - 1)
+			std::cout << building[route[i]] << "---->";
+		else
+			std::cout << building[route[i]] << std::endl;
 	}
 }

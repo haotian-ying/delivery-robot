@@ -2,6 +2,7 @@
 #include<iostream>
 #include<vector>
 #include<string>
+#include"graph.h"
 
 struct Parcel
 {
@@ -14,7 +15,9 @@ struct Parcel
 	int priority;
 
 	//其余元素自动生成
-	Parcel(int sequence);
+	Parcel(int);
+	//生成测试样例
+	Parcel(int,int,int);
 };
 
 class WareHouse
@@ -22,18 +25,41 @@ class WareHouse
 private:
 	std::vector<Parcel> PacelQueue;
 	//仓库包裹数上限
-	int MaxNum = 100;
+	int OverTime = 0;
+	int MaxNum = 300;
+	int pos = 0;
 public:
-	//自动生成包裹序列
+	friend class Vehicle;
 	WareHouse();
 	WareHouse(int);
-	friend class Vehicle;
+	//用于测试
+	WareHouse(const Parcel&);
 	~WareHouse();
-	//返回剩余包裹数
+	void Sort();
+	//支持队列操作
+	void pop();
+	void push(const Parcel&);
 	int CurSize();
+	Parcel& front();
 	//返回当前时间下超时包裹数
-	int OverTime(double);
+	int TimeCount(double,double);
+	void UpdateOverTime();
+	void print();
 	//催货
 	void Manual(int);
 };
+
+//各个送达点有包裹“发货”的模式
+class DeliveryPoints
+{
+private:
+	std::vector<WareHouse> WareHouseQueue;
+	std::vector<int> sign;
+public:
+	friend class Vehicle;
+	DeliveryPoints();
+	int size();
+	void show();
+};
+
 
