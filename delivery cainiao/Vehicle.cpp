@@ -75,6 +75,51 @@ void Vehicle::LoadParcel(WareHouse& wh)
 	}
 }
 
+std::vector<int> Vehicle::solveKnapsack(WareHouse& wh)
+{
+	int len = wh.PacelQueue.size();
+	std::vector<std::vector<double>> dp(len + 1, std::vector<double>(Capacity - SelfWeight + 1, 0));
+
+	for (int i = 1; i <= len; ++i) {
+		for (int w = 0; w <= Capacity - SelfWeight; ++w) 
+		{
+			int approxValue = static_cast<int>(wh.PacelQueue[i - 1].priority);
+			if (approxValue < w)
+				dp[i][w] = std::max(dp[i - 1][w], dp[i - 1][w - approxValue] + wh.PacelQueue[i - 1].priority);
+			else 
+				dp[i][w] = dp[i - 1][w];
+		}
+	}
+
+	// 回溯获取所选择的包裹编号
+	std::vector<int> selectedParcels;
+	int i = len, w = Capacity - SelfWeight;
+	while (i > 0 && w > 0) {
+		if (dp[i][w] != dp[i - 1][w]) {
+			selectedParcels.push_back(i - 1);
+			w -= wh.PacelQueue[i - 1].weight;
+		}
+		--i;
+	}
+
+	return selectedParcels;
+}
+
+
+void Vehicle::LoadParcelDP(WareHouse& wh)
+{
+	// 使用背包问题解决函数获取选择的包裹编号
+	std::vector<int> selectedParcels = solveKnapsack(wh);
+
+	// 根据选择的包裹编号进行装载
+	for (int idx : selectedParcels) {
+		carriage.push_back(wh.PacelQueue[idx]);
+		CurWeight += wh.PacelQueue[idx].weight;
+		visited[wh.PacelQueue[idx].destination] = 0;
+		wh.received[idx] = 1;
+	}
+}
+
 int Vehicle::NearestDest(int start,bool back)
 {
 	visited[start] = 1; 

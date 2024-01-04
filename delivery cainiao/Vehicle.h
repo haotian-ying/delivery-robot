@@ -31,6 +31,8 @@ public:
 	int TotalCost();
 	//装载包裹
 	void LoadParcel(WareHouse&);
+	std::vector<int> solveKnapsack(WareHouse&);
+	void LoadParcelDP(WareHouse&);
 	//输出基本信息
 	void ShowInfo(int);
 

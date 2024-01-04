@@ -12,11 +12,10 @@ struct Parcel
 	int TimeLimit;
 	//最晚时间，整点
 	int destination;
-	int priority;
+	double priority;
 
-	//TODO 优先级函数
 	//其余元素自动生成
-	Parcel(int);
+	Parcel();
 	//生成测试样例
 	Parcel(int,int,int);
 };
@@ -25,6 +24,7 @@ class WareHouse
 {
 private:
 	std::vector<Parcel> PacelQueue;
+	std::vector<int> received;
 	//仓库包裹数上限
 	int OverTime = 0;
 	int MaxNum = 300;
@@ -44,6 +44,7 @@ public:
 	//返回当前时间下超时包裹数
 	int TimeCount(double,double);
 	void UpdateOverTime();
+	int TimeCountDP(double);
 	void print();
 	void PrintSend();
 	//催货
