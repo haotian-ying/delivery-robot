@@ -1,4 +1,1 @@
-﻿  WareHouse.cpp
-D:\data structure\delivery robot\delivery cainiao\WareHouse.cpp(35,29): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-D:\data structure\delivery robot\delivery cainiao\WareHouse.cpp(112,26): warning C4267: “return”: 从“size_t”转换到“int”，可能丢失数据
-  delivery cainiao.vcxproj -> D:\data structure\delivery robot\delivery cainiao\x64\Debug\delivery cainiao.exe
+﻿  delivery cainiao.vcxproj -> D:\data structure\delivery robot\delivery cainiao\x64\Debug\delivery cainiao.exe
