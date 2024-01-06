@@ -259,10 +259,7 @@ void Vehicle::NearestReceiver(DeliveryPoints& dp)
 	while(i < total)
 	{
 		//装载量未满则继续装载
-		if(CurWeight < 240)
-			cur = NearestDest(start, false);
-		else
-			cur = NearestDest(start, true);
+		cur = NearestDest(start, false);
 		
 		//接收货物
 		LoadParcel(dp.WareHouseQueue[i]);

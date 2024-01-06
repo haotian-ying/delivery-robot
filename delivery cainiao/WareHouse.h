@@ -44,7 +44,7 @@ public:
 	//返回当前时间下超时包裹数
 	int TimeCount(double,double);
 	void UpdateOverTime();
-	int TimeCountDP(double);
+	int TimeCountDP(double, double);
 	void print();
 	void PrintSend();
 	//催货

@@ -19,7 +19,7 @@ int main()
 			std::cin >> mode;
 		}
 
-		if(mode == '1')
+		if (mode == '1')
 		{
 			int w, ddl, dest;
 			std::cout << "请输入样例重量：" << std::endl;
@@ -28,7 +28,7 @@ int main()
 			std::cin >> ddl;
 			std::cout << "请输入样例目的地（1-13，以下标表示）：" << std::endl;
 			std::cin >> dest;
-			Parcel temp(w,ddl,dest);
+			Parcel temp(w, ddl, dest);
 			WareHouse test(temp);
 			cainiao.LoadParcel(test);
 
@@ -36,7 +36,7 @@ int main()
 			int cnt = 1;
 			cainiao.ShowInfo(cnt);
 			cainiao.NearestDeliver(test);
-			std::cout << "当前时间" << cainiao.CurTime() << '\t' << "超时包裹数：" << test.TimeCount(prev,cainiao.CurTime()) << std::endl;
+			std::cout << "当前时间" << cainiao.CurTime() << '\t' << "超时包裹数：" << test.TimeCount(prev, cainiao.CurTime()) << std::endl;
 			std::cout << "第" << cnt << "趟送货路径： " << std::endl;
 			cainiao.track();
 			std::cout << "第" << cnt << "趟送货总耗费： " << cainiao.TotalCost() << "kg*m" << std::endl;
@@ -64,38 +64,12 @@ int main()
 				}
 				else if (sign == 'n')
 					flag = false;
-				else
-					flag = false;
-
-				int cnt = 1;
-				while (wh.CurSize() > 0 && cainiao.CurTime() <= 18)
-				{
-					double prev = cainiao.CurTime();
-					cainiao.LoadParcel(wh);
-					cainiao.ShowInfo(cnt);
-					cainiao.NearestDeliver(wh);
-
-					std::cout << "当前时间" << cainiao.CurTime() << '\t' << "超时包裹数：" << wh.TimeCount(prev, cainiao.CurTime()) << std::endl;
-					std::cout << "第" << cnt << "趟送货路径： " << std::endl;
-					cainiao.track();
-					std::cout << "第" << cnt << "趟送货总耗费： " << cainiao.TotalCost() << "kg*m" << std::endl;
-					//分割线
-					std::cout << std::endl << std::setfill('-') << std::setw(83) << "" << std::setfill(' ') << std::endl;
-					cainiao.Reset();
-					cnt++;
-				}
 			}
-		}
-
-		if (mode == '3')
-		{
-			WareHouse wh(300);
-			wh.Sort();
 			int cnt = 1;
 			while (wh.CurSize() > 0 && cainiao.CurTime() <= 18)
 			{
 				double prev = cainiao.CurTime();
-				cainiao.LoadParcelDP(wh);
+				cainiao.LoadParcel(wh);
 				cainiao.ShowInfo(cnt);
 				cainiao.NearestDeliver(wh);
 
@@ -110,7 +84,7 @@ int main()
 			}
 		}
 
-		if (mode == '4')
+		if (mode == '3')
 		{
 			WareHouse wh(300);
 			wh.Sort();
@@ -131,26 +105,43 @@ int main()
 				cainiao.Reset();
 				cnt++;
 			}
-			DeliveryPoints dp;
-			dp.show();
-			std::cout << std::endl << std::setfill('-') << std::setw(83) << "" << std::setfill(' ') << std::endl;
-			cainiao.NearestReceiver(dp);
-			std::cout << "收货路径： " << std::endl;
-			cainiao.track();
-			std::cout << "收货总耗费： " << cainiao.TotalCost() << "kg*m" << std::endl;
 		}
 
-		if (mode == '5')
+		if (mode == '4')
 		{
 			WareHouse wh(300);
 			int cnt = 1;
 			while (wh.CurSize() > 0 && cainiao.CurTime() <= 18)
 			{
+				double prev = cainiao.CurTime();
 				cainiao.LoadParcelDP(wh);
 				cainiao.ShowInfo(cnt);
 				cainiao.NearestDeliver(wh);
 
-				std::cout << "当前时间" << cainiao.CurTime() << '\t' << "超时包裹数：" << wh.TimeCountDP(cainiao.CurTime()) << std::endl;
+				std::cout << "当前时间" << cainiao.CurTime() << '\t' << "超时包裹数：" << wh.TimeCountDP(prev, cainiao.CurTime()) << std::endl;
+				std::cout << "第" << cnt << "趟送货路径： " << std::endl;
+				cainiao.track();
+				std::cout << "第" << cnt << "趟送货总耗费： " << cainiao.TotalCost() << "kg*m" << std::endl;
+				//分割线
+				std::cout << std::endl << std::setfill('-') << std::setw(83) << "" << std::setfill(' ') << std::endl;
+				cainiao.Reset();
+				cnt++;
+			}
+		}
+
+		if (mode == '5')
+		{
+			WareHouse wh(300);
+			wh.Sort();
+			int cnt = 1;
+			while (wh.CurSize() > 0 && cainiao.CurTime() <= 18)
+			{
+				double prev = cainiao.CurTime();
+				cainiao.LoadParcel(wh);
+				cainiao.ShowInfo(cnt);
+				cainiao.NearestDeliver(wh);
+
+				std::cout << "当前时间" << cainiao.CurTime() << '\t' << "超时包裹数：" << wh.TimeCount(prev,cainiao.CurTime()) << std::endl;
 				std::cout << "第" << cnt << "趟送货路径： " << std::endl;
 				cainiao.track();
 				std::cout << "第" << cnt << "趟送货总耗费： " << cainiao.TotalCost() << "kg*m" << std::endl;
@@ -174,4 +165,5 @@ int main()
 			LoopFlag = false;
 		}
 	}
+	return 0;
 }

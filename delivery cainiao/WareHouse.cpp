@@ -135,11 +135,11 @@ int WareHouse::TimeCount(double prev,double cur)
 	return OverTime;
 }
 
-int WareHouse::TimeCountDP(double cur)
+int WareHouse::TimeCountDP(double prev,double cur)
 {
 	for (int i = 0;i < PacelQueue.size();i++)
 	{
-		if (PacelQueue[i].TimeLimit < cur && received[i] == 0)
+		if (PacelQueue[i].TimeLimit < cur && PacelQueue[i].TimeLimit > prev  && received[i] == 0)
 		{
 			OverTime++;
 		}
